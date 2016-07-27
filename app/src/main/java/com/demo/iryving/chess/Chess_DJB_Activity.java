@@ -12,29 +12,16 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-enum WhichView{WELCOME_VIEW,GAME_VIEW};
-public class Chess_DJB_Activity extends Activity {
+import android.widget.Button;
+
+public class Chess_DJB_Activity extends Activity implements View.OnClickListener{
 	GameView gameView;
-	WhichView wv;
-	WelcomeView wvv;
+	Button btn_tip;
 	SoundPool soundPool;//声音池
 	HashMap<Integer, Integer> soundPoolMap; //声音池中声音ID与自定义声音ID的Map
-	Handler hd=new Handler(){
-		@Override
-		public void handleMessage(Message msg)
-		{
-			switch(msg.what)
-			{
-			case 0:
-				wv=WhichView.GAME_VIEW;
-				goToGameView();
-				
-				break;
-			}
-		}
-	};
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,13 +33,23 @@ public class Chess_DJB_Activity extends Activity {
         );
       //设置横屏模式
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-//        hd.sendEmptyMessage(0);
         setVolumeControlStream(AudioManager.STREAM_MUSIC);//游戏过程中只允许多媒体音量,而不允许通化音量
         initPm();//调整屏幕分辨率
         initSound();
-//        goToWelcomeView();
-        hd.sendEmptyMessage(0);
+		setContentView(R.layout.main);
+		gameView = (GameView)findViewById(R.id.gameView);
+		btn_tip = (Button)findViewById(R.id.btn_tip);
+		btn_tip.setOnClickListener(ocl);
     }
+
+	View.OnClickListener ocl = new View.OnClickListener() {
+		@Override
+		public void onClick(View view) {
+
+		}
+	};
+
+
     public void initPm()
     {
     	//获取屏幕分辨率
@@ -84,46 +81,7 @@ public class Chess_DJB_Activity extends Activity {
 		sYtart=(height-800*yZoom)/2;
 		initChessViewFinal();
     }
-    public void goToGameView()
-    {
-    		gameView=new GameView(Chess_DJB_Activity.this);    		
-    		
-    	setContentView(gameView);
-    	wv=WhichView.GAME_VIEW;
-    }
-  
 
-  //进入欢迎界面
-    public void goToWelcomeView()
-    {
-    	if(wvv==null)
-    	{
-    		wvv=new WelcomeView(this);
-    	}
-    	setContentView(wvv);
-    	wv=WhichView.WELCOME_VIEW;
-    }
-    @Override
-	public boolean onKeyDown(int keyCode, KeyEvent e)
-    {
-    	if(keyCode!=4)
-    	{
-    		return true;  
-    	}
-    	if(wv==WhichView.WELCOME_VIEW)
-    	{
-    		return true;
-    	}
-    	
-    	if(wv==WhichView.GAME_VIEW)
-    	{
-    		gameView.threadFlag=false;
-    		System.exit(0);
-    		return true;
-    	}
-    	System.exit(0);
-    	return true;
-    }
     public void initSound()
     {
 		//声音池
@@ -148,4 +106,6 @@ public class Chess_DJB_Activity extends Activity {
 	    float volume = streamVolumeCurrent / streamVolumeMax;   
 	    soundPool.play(soundPoolMap.get(sound), volume, volume, 1, loop, 1f);
 	}
+
+
 }
