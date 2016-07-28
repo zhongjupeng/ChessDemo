@@ -10,19 +10,35 @@
         android:id="@+id/gameView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="0.8"/>
-    <RelativeLayout
+        android:layout_weight="0.7"/>
+    <LinearLayout
         android:layout_width="match_parent"
-        android:gravity="center"
         android:layout_height="0dp"
-        android:layout_weight="0.2">
+        android:gravity="center"
+        android:orientation="vertical"
+        android:weightSum="1"
+        android:layout_weight="0.3">
+        <TextView
+            android:id="@+id/tv_tip"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.5"
+            android:gravity="center"
+            android:ellipsize="marquee"
+            android:focusable="true"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:focusableInTouchMode="true"
+            android:scrollHorizontally="true"
+            android:text="等待您下达命令。。。。。。"
+            android:textSize="20dp"
+            android:textColor="@android:color/holo_red_dark"/>
         <Button
             android:id="@+id/btn_tip"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.5"
             android:text="开始"
-            android:background="@android:drawable/ic_btn_speak_now"
+            android:textSize="16dp"
             android:layout_gravity="center"/>
-
-    </RelativeLayout>
+    </LinearLayout>
 </LinearLayout>

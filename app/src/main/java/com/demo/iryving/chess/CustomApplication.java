@@ -1,7 +1,9 @@
 package com.demo.iryving.chess;
 
 import android.app.Application;
-import android.speech.SpeechRecognizer;
+
+import com.iflytek.cloud.SpeechConstant;
+import com.iflytek.cloud.SpeechUtility;
 
 /**
  * Created by zjp on 2016/7/27.

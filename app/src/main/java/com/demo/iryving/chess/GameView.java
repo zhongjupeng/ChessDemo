@@ -24,7 +24,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.Toast;
 public class GameView extends SurfaceView implements SurfaceHolder.Callback{
-	Chess_DJB_Activity father;
+	ChessActivity father;
 	Bitmap[][] chessBitmap;//象棋棋子图片
 	Bitmap chessZouQiflag;//标志走棋
 	Bitmap paotai;//炮台
@@ -86,7 +86,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback{
 	int bzrow;
 	public GameView(Context context) {
 		super(context);
-		this.father=(Chess_DJB_Activity)context;	
+		this.father=(ChessActivity)context;
 		this.getHolder().addCallback(this);//设置生命周期回调接口的实现者
 		paint = new Paint();//创建画笔
 		paint.setAntiAlias(true);//打开抗锯齿
