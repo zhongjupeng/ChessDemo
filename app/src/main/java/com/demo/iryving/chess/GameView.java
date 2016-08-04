@@ -19,6 +19,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -46,9 +47,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback{
 	Bitmap suspend;//暂停
 	Bitmap nandutiaoZ;//难度
 	Bitmap nonandutiaoZ;//难度不可用
-	Bitmap guanggao1[]=new Bitmap[2];//广告条1
-	Bitmap guanggao2;//广告条2
-	
 	Bitmap winJiemian;//赢界面
 	Bitmap loseJiemian;//输界面
 	Bitmap fugaiTu;//覆盖图
@@ -58,7 +56,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback{
 	int[][] color=new int[20][3];
 	int length;//难度数
 	int huiqibushu=0;
-	float guanggao2X=0;//
 	boolean playChessflag;//下棋方标志位，false为黑方下棋
 	SurfaceHolder holder;//画布
 	Canvas canvas;
@@ -99,6 +96,39 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback{
 		LoadUtil.sdPlayer=0;//下棋方为
 		endTime=zTime;//总时间		
 	}
+
+	public GameView(Context context, AttributeSet attrs) {
+		super(context, attrs);
+		this.father=(ChessActivity)context;
+		this.getHolder().addCallback(this);//设置生命周期回调接口的实现者
+		paint = new Paint();//创建画笔
+		paint.setAntiAlias(true);//打开抗锯齿
+		isnoStart=false;
+		length=nanduXS*4;
+		initColer();//初始化难度滚动条颜色数组
+		LoadUtil.Startup();//初始化棋盘
+		initArrays();//初始化数组
+		initBitmap(); ///初始化图片
+		LoadUtil.sdPlayer=0;//下棋方为
+		endTime=zTime;//总时间
+	}
+
+	public GameView(Context context, AttributeSet attrs, int defStyleAttr) {
+		super(context, attrs, defStyleAttr);
+		this.father=(ChessActivity)context;
+		this.getHolder().addCallback(this);//设置生命周期回调接口的实现者
+		paint = new Paint();//创建画笔
+		paint.setAntiAlias(true);//打开抗锯齿
+		isnoStart=false;
+		length=nanduXS*4;
+		initColer();//初始化难度滚动条颜色数组
+		LoadUtil.Startup();//初始化棋盘
+		initArrays();//初始化数组
+		initBitmap(); ///初始化图片
+		LoadUtil.sdPlayer=0;//下棋方为
+		endTime=zTime;//总时间
+	}
+
 	public void initArrays()
 	{
 		for(int i=0;i<256;i++)
@@ -112,25 +142,17 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback{
 		canvas.drawColor(Color.argb(255, 0, 0, 0));
 		canvas.drawBitmap(beijint,sXtart,sYtart, null);
 
-		if(isnoStart)//如果开始了
-		{
-			onDrawWindowindow(canvas,ViewConstant.sXtart,ViewConstant.sYtart);
-			if(flag)
-			{
-				float left=xMove>sXtart+5*xSpan?windowXstartLeft:windowXstartRight;
-				float top=windowYstart;			
-				float right=left+windowWidth;
-				float bottom=top+windowHeight;
-				canvas.save();
-				canvas.clipRect(new RectF(left,top,right,bottom));
-				onDrawWindowindow(canvas,sXtartCk,sYtartCk);//小窗口
-				canvas.restore();
-				canvas.drawBitmap(beijint4,left-6,top-6, null);
-			}
-
-		}else
-		{
-			canvas.drawBitmap(guanggao1[(int) ((Math.abs(guanggao2X/40)%2))],sXtart,sYtart, null);
+		onDrawWindowindow(canvas, ViewConstant.sXtart, ViewConstant.sYtart);
+		if (flag) {
+			float left = xMove > sXtart + 5 * xSpan ? windowXstartLeft : windowXstartRight;
+			float top = windowYstart;
+			float right = left + windowWidth;
+			float bottom = top + windowHeight;
+			canvas.save();
+			canvas.clipRect(new RectF(left, top, right, bottom));
+			onDrawWindowindow(canvas, sXtartCk, sYtartCk);//小窗口
+			canvas.restore();
+			canvas.drawBitmap(beijint4, left - 6, top - 6, null);
 		}
 		
 		
@@ -275,110 +297,101 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback{
 			canvas.drawBitmap(huiqi,sXtart+7f*xSpan,sYtart+11.35f*ySpan, null);//悔棋
 		}
 
-		canvas.drawBitmap(scaleToFit(minueBeijint,1f),sXtart,sYtart+12.8f*ySpan, null);//菜单背景图
-		if(chonwanFlag)//新局
-		{
-			canvas.drawBitmap(scaleToFit(chonWan,1.2f),sXtart+0.3f*xSpan,sYtart+12.9f*ySpan, null);//重玩
-		}
-		else
-		{
-			canvas.drawBitmap(chonWan,sXtart+0.8f*xSpan,sYtart+13.2f*ySpan, null);//重玩
-		}
-		if(isnoStart)//开始暂停，如果已经开始
-		{
-			if(dianjiKaiShi)//如果点击此处了
-			{
-				canvas.drawBitmap(scaleToFit(suspend,1.2f),sXtart+3.0f*xSpan,sYtart+13.0f*ySpan, null);
-			}else
-			canvas.drawBitmap(suspend,sXtart+3.3f*xSpan,sYtart+13.2f*ySpan, null);
-		}
-		else{
-			if(dianjiKaiShi)//如果点击此处了
-			{
-				canvas.drawBitmap(scaleToFit(start,1.2f),sXtart+3.0f*xSpan,sYtart+13.0f*ySpan, null);
-			}else
-			canvas.drawBitmap(start,sXtart+3.3f*xSpan,sYtart+13.2f*ySpan, null);
-		}
-		
-		if(!isnoStart)//难度是否可选，如果可选，则表示当前状态下可以点击，为暂停状态下是为可选
-		{
-			if(dianjiNanDu)
-			{
-				canvas.drawBitmap(scaleToFit(nandutiaoZ,1.2f),sXtart+5.5f*xSpan,sYtart+13.0f*ySpan, null);
-			}else
-			canvas.drawBitmap(nandutiaoZ,sXtart+5.8f*xSpan,sYtart+13.2f*ySpan, null);
-		}
-		else
-		{
-
-			canvas.drawBitmap(nonandutiaoZ,sXtart+5.8f*xSpan,sYtart+13.2f*ySpan, null);
-		}
-		
-		if(isnoPlaySound)//是否开启声音,如果是已经开启了声音
-		{
-			if(dianjishengyin)
-			{
-				canvas.drawBitmap(scaleToFit(isPlaySound,1.2f),sXtart+8.0f*xSpan,sYtart+13.1f*ySpan, null);				
-			}else
-			canvas.drawBitmap(isPlaySound,sXtart+8.3f*xSpan,sYtart+13.2f*ySpan, null);
-		}else{
-			if(dianjishengyin)
-			{
-				canvas.drawBitmap(scaleToFit(noPlaySound,1.2f),sXtart+8.0f*xSpan,sYtart+13.1f*ySpan, null);				
-			}else
-			canvas.drawBitmap(noPlaySound,sXtart+8.3f*xSpan,sYtart+13.2f*ySpan, null);
-		}
-		
-		if(!isnoStart&&nanduBXZ)//如果为按下了难度
-		{  
-			
-			canvas.drawBitmap(beijint3,sXtart,sYtart+14.6f*ySpan, null);
-			Rect r=new Rect(50,50,200,200);
-			
-			if(dianjiJDT)
-			{
-				length=(int)((xMove-sXtart)/(xZoom*20));
-				nanduXS=(int)((xMove-sXtart)/(90*xZoom));
-				if(nanduXS<1)
-				{
-					nanduXS=1;
-				}
-				if(nanduXS>5)
-				{
-					nanduXS=5;
-				}
-				Constant.LIMIT_DEPTH=nanduXS*6;
-			}
-			
-			
-			if(length<1)
-			{
-				length=1;
-			}else if(length>20)
-			{
-				length=20;
-			}
-			for(int i=0;i<length;i++)
-			{
-				paint.setARGB(color[i][0], color[i][1], color[i][2], 0);//设置画笔颜色	
-				r=new Rect((int) (sXtart+60*xZoom+i*xZoom*18),(int)(sYtart+15.3f*ySpan),
-						(int) (sXtart+60*xZoom+(i)*xZoom*18+13*xZoom),(int) (sYtart+15.3f*ySpan+32*xZoom));
-				canvas.drawRect(r, paint);
-			}
-
-		}else
-		{
-			canvas.drawBitmap(minueBeijint,sXtart,sYtart+14.6f*ySpan, null);
-			//绘制广告
-			float left=sXtart+40*xZoom;
-			float top=sYtart+15f*ySpan;			
-			float right=sXtart+9*xSpan;
-			float bottom=sYtart+15.2f*ySpan+40*xZoom;
-			canvas.save();
-			canvas.clipRect(new RectF(left,top,right,bottom));
-			canvas.drawBitmap(guanggao2,guanggao2X,sYtart+14.8f*ySpan, null);
-			canvas.restore();
-		}
+//		canvas.drawBitmap(scaleToFit(minueBeijint,1f),sXtart,sYtart+12.8f*ySpan, null);//菜单背景图
+//		if(chonwanFlag)//新局
+//		{
+//			canvas.drawBitmap(scaleToFit(chonWan,1.2f),sXtart+0.3f*xSpan,sYtart+12.9f*ySpan, null);//重玩
+//		}
+//		else
+//		{
+//			canvas.drawBitmap(chonWan,sXtart+0.8f*xSpan,sYtart+13.2f*ySpan, null);//重玩
+//		}
+//		if(isnoStart)//开始暂停，如果已经开始
+//		{
+//			if(dianjiKaiShi)//如果点击此处了
+//			{
+//				canvas.drawBitmap(scaleToFit(suspend,1.2f),sXtart+3.0f*xSpan,sYtart+13.0f*ySpan, null);
+//			}else
+//			canvas.drawBitmap(suspend,sXtart+3.3f*xSpan,sYtart+13.2f*ySpan, null);
+//		}
+//		else{
+//			if(dianjiKaiShi)//如果点击此处了
+//			{
+//				canvas.drawBitmap(scaleToFit(start,1.2f),sXtart+3.0f*xSpan,sYtart+13.0f*ySpan, null);
+//			}else
+//			canvas.drawBitmap(start,sXtart+3.3f*xSpan,sYtart+13.2f*ySpan, null);
+//		}
+//
+//		if(!isnoStart)//难度是否可选，如果可选，则表示当前状态下可以点击，为暂停状态下是为可选
+//		{
+//			if(dianjiNanDu)
+//			{
+//				canvas.drawBitmap(scaleToFit(nandutiaoZ,1.2f),sXtart+5.5f*xSpan,sYtart+13.0f*ySpan, null);
+//			}else
+//			canvas.drawBitmap(nandutiaoZ,sXtart+5.8f*xSpan,sYtart+13.2f*ySpan, null);
+//		}
+//		else
+//		{
+//
+//			canvas.drawBitmap(nonandutiaoZ,sXtart+5.8f*xSpan,sYtart+13.2f*ySpan, null);
+//		}
+//
+//		if(isnoPlaySound)//是否开启声音,如果是已经开启了声音
+//		{
+//			if(dianjishengyin)
+//			{
+//				canvas.drawBitmap(scaleToFit(isPlaySound,1.2f),sXtart+8.0f*xSpan,sYtart+13.1f*ySpan, null);
+//			}else
+//			canvas.drawBitmap(isPlaySound,sXtart+8.3f*xSpan,sYtart+13.2f*ySpan, null);
+//		}else{
+//			if(dianjishengyin)
+//			{
+//				canvas.drawBitmap(scaleToFit(noPlaySound,1.2f),sXtart+8.0f*xSpan,sYtart+13.1f*ySpan, null);
+//			}else
+//			canvas.drawBitmap(noPlaySound,sXtart+8.3f*xSpan,sYtart+13.2f*ySpan, null);
+//		}
+//
+//		if(!isnoStart&&nanduBXZ)//如果为按下了难度
+//		{
+//
+//			canvas.drawBitmap(beijint3,sXtart,sYtart+14.6f*ySpan, null);
+//			Rect r=new Rect(50,50,200,200);
+//
+//			if(dianjiJDT)
+//			{
+//				length=(int)((xMove-sXtart)/(xZoom*20));
+//				nanduXS=(int)((xMove-sXtart)/(90*xZoom));
+//				if(nanduXS<1)
+//				{
+//					nanduXS=1;
+//				}
+//				if(nanduXS>5)
+//				{
+//					nanduXS=5;
+//				}
+//				Constant.LIMIT_DEPTH=nanduXS*6;
+//			}
+//
+//
+//			if(length<1)
+//			{
+//				length=1;
+//			}else if(length>20)
+//			{
+//				length=20;
+//			}
+//			for(int i=0;i<length;i++)
+//			{
+//				paint.setARGB(color[i][0], color[i][1], color[i][2], 0);//设置画笔颜色
+//				r=new Rect((int) (sXtart+60*xZoom+i*xZoom*18),(int)(sYtart+15.3f*ySpan),
+//						(int) (sXtart+60*xZoom+(i)*xZoom*18+13*xZoom),(int) (sYtart+15.3f*ySpan+32*xZoom));
+//				canvas.drawRect(r, paint);
+//			}
+//
+//		}else
+//		{
+//			canvas.drawBitmap(minueBeijint,sXtart,sYtart+14.6f*ySpan, null);
+//		}
 	}
 	public void initColer()
 	{
@@ -416,9 +429,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback{
 		winJiemian=scaleToFit(BitmapFactory.decodeResource(getResources(), R.drawable.yingjiemian),xZoom);//赢界面
 		loseJiemian=scaleToFit(BitmapFactory.decodeResource(getResources(), R.drawable.shuijiemian),xZoom);//输界面
 		queDinButton=scaleToFit(BitmapFactory.decodeResource(getResources(), R.drawable.queding),xZoom);//再来一局
-		guanggao1[0]=scaleToFit(BitmapFactory.decodeResource(getResources(), R.drawable.guanggao1),xZoom);
-		guanggao1[1]=scaleToFit(BitmapFactory.decodeResource(getResources(), R.drawable.floor),xZoom);
-		guanggao2=scaleToFit(BitmapFactory.decodeResource(getResources(), R.drawable.guanggao2),xZoom);//广告12
 		nonandutiaoZ=scaleToFit(BitmapFactory.decodeResource(getResources(), R.drawable.nonandu),xZoom);//难度
 		nandutiaoZ=scaleToFit(BitmapFactory.decodeResource(getResources(), R.drawable.nanduxuanz),xZoom);//难度
 		suspend=scaleToFit(BitmapFactory.decodeResource(getResources(), R.drawable.zhanting),xZoom);//暂停
@@ -530,11 +540,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback{
 		        			{
 		        				endTime-=500;
 		        			}
-	        			}
-	        			guanggao2X-=10;
-	        			if(guanggao2X<-400*xZoom)
-	        			{
-	        				guanggao2X=400*xZoom;
 	        			}
 	        			
 	        			onDrawcanvas();//重绘方法
@@ -963,5 +968,154 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback{
             	holder.unlockCanvasAndPost(canvas);
             }
         }
+	}
+
+	public void startGameAction(){
+		//该处为点击开始时根据不同情况做不同操作
+		isnoStart=!isnoStart;
+		nanduBXZ=false;
+		if(!isnoStart)
+		{
+			dianjiJDT=false;//点击拖动
+			isnoTCNDxuanz=false;
+		}
+		dianjiKaiShi=false;
+		onDrawcanvas();//重绘方法
+	}
+
+	public void pauseGameAction(){
+        //该处为点击开始时根据不同情况做不同操作
+		isnoStart=!isnoStart;
+		nanduBXZ=false;
+		if(!isnoStart)
+		{
+			dianjiJDT=false;//点击拖动
+			isnoTCNDxuanz=false;
+		}
+		dianjiKaiShi=false;
+		onDrawcanvas();//重绘方法
+
+	}
+
+	public void againGameAction(){
+		shuJMflag=false;
+		yingJMflag=false;
+		isnoStart=false;
+		endTime=zTime;
+		stack.clear();
+		LoadUtil.Startup();//初始化棋盘
+		initArrays();//初始化数组
+
+		chonwanFlag=false;
+		onDrawcanvas();//重绘方法
+	}
+
+	public void backMoveAction() {
+		if (!stack.empty() && stack.size() > 1) {
+			if (huiqibushu > huiqiBS) {
+				Toast.makeText(father, "悔棋步数已经超过规定!", Toast.LENGTH_SHORT).show();
+			}
+			huiqibushu++;
+			StackplayChess chess = stack.pop();
+			LoadUtil.UndoMovePiece(chess.mvResult, chess.pcCaptured);
+
+			chess = stack.pop();
+			LoadUtil.UndoMovePiece(chess.mvResult, chess.pcCaptured);
+			if (!stack.empty()) {
+				mvResult = stack.peek().mvResult;
+			}
+			initArrays();//数组操作
+		}
+		huiqiFlag = false;
+		onDrawcanvas();//重绘方法
+	}
+
+
+	public boolean isNanduBXZ() {
+		return nanduBXZ;
+	}
+
+	public void setNanduBXZ(boolean nanduBXZ) {
+		this.nanduBXZ = nanduBXZ;
+	}
+
+	public boolean isFlag() {
+		return flag;
+	}
+
+	public void setFlag(boolean flag) {
+		this.flag = flag;
+	}
+
+	public boolean isHuiqiFlag() {
+		return huiqiFlag;
+	}
+
+	public void setHuiqiFlag(boolean huiqiFlag) {
+		this.huiqiFlag = huiqiFlag;
+	}
+
+	public boolean isChonwanFlag() {
+		return chonwanFlag;
+	}
+
+	public void setChonwanFlag(boolean chonwanFlag) {
+		this.chonwanFlag = chonwanFlag;
+	}
+
+	public boolean isnoNanDu() {
+		return isnoNanDu;
+	}
+
+	public void setIsnoNanDu(boolean isnoNanDu) {
+		this.isnoNanDu = isnoNanDu;
+	}
+
+	public boolean isDianjiNanDu() {
+		return dianjiNanDu;
+	}
+
+	public void setDianjiNanDu(boolean dianjiNanDu) {
+		this.dianjiNanDu = dianjiNanDu;
+	}
+
+	public boolean isDianjiXinJu() {
+		return dianjiXinJu;
+	}
+
+	public void setDianjiXinJu(boolean dianjiXinJu) {
+		this.dianjiXinJu = dianjiXinJu;
+	}
+
+	public boolean isDianjiKaiShi() {
+		return dianjiKaiShi;
+	}
+
+	public void setDianjiKaiShi(boolean dianjiKaiShi) {
+		this.dianjiKaiShi = dianjiKaiShi;
+	}
+
+	public boolean isDianjishengyin() {
+		return dianjishengyin;
+	}
+
+	public void setDianjishengyin(boolean dianjishengyin) {
+		this.dianjishengyin = dianjishengyin;
+	}
+
+	public boolean isDianjiJDT() {
+		return dianjiJDT;
+	}
+
+	public void setDianjiJDT(boolean dianjiJDT) {
+		this.dianjiJDT = dianjiJDT;
+	}
+
+	public boolean isDianjiQueDing() {
+		return dianjiQueDing;
+	}
+
+	public void setDianjiQueDing(boolean dianjiQueDing) {
+		this.dianjiQueDing = dianjiQueDing;
 	}
 }

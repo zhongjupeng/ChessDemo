@@ -1,0 +1,10 @@
+﻿#ABNF 1.0 UTF-8;
+
+
+mode voice;
+language zh-cn;
+root $main;
+
+public $main = [游戏]$command[游戏];
+
+$command = 开始 | 暂停 | 静音 | 打开声音| 退出 | 重玩 | 悔棋 | 新局 | 将军;

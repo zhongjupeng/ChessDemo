@@ -6,6 +6,8 @@ import android.content.pm.ActivityInfo;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -16,6 +18,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.demo.iryving.util.ErrorCodeParser;
 import com.demo.iryving.util.JsonParser;
 import com.iflytek.cloud.ErrorCode;
 import com.iflytek.cloud.GrammarListener;
@@ -41,6 +44,49 @@ public class ChessActivity extends Activity {
 	SoundPool soundPool;//声音池
 	HashMap<Integer, Integer> soundPoolMap; //声音池中声音ID与自定义声音ID的Map
 	SpeechRecognizer mAsr = null;
+	private static final int MSG_START_GAME = 100;
+	private static final int MSG_PAUSE_GAME = 200;
+	private static final int MSG_AGAIN_GAME = 300;
+	private static final int MSG_BACK_MOVE_GAME = 400;
+	private static final int MSG_TURN_OFF_MUSIC = 500;
+	private static final int MSG_TURN_ON_MUSIC = 600;
+	private static final int MSG_END_GAME = 700;
+
+	private Handler handler = new Handler(){
+		@Override
+		public void handleMessage(Message msg) {
+			super.handleMessage(msg);
+			switch (msg.what){
+				case MSG_START_GAME:
+					showTip("开始游戏");
+                    gameView.startGameAction();
+					break;
+				case MSG_PAUSE_GAME:
+					showTip("暂停游戏");
+                    gameView.pauseGameAction();
+					break;
+				case MSG_AGAIN_GAME:
+					showTip("重来一局");
+                    gameView.againGameAction();
+					break;
+				case MSG_BACK_MOVE_GAME:
+					showTip("悔棋");
+                    gameView.backMoveAction();
+					break;
+				case MSG_TURN_OFF_MUSIC:
+					showTip("关闭音量");
+					isnoPlaySound = false;
+					break;
+				case MSG_TURN_ON_MUSIC:
+					showTip("打开音量");
+                    isnoPlaySound = true;
+					break;
+				default:
+
+					break;
+			}
+		}
+	};
 
 
 	private static final String TAG = "ChessActivity";
@@ -77,7 +123,7 @@ public class ChessActivity extends Activity {
 	private void initAsr() {
 		//1.创建SpeechRecognizer对象
 		mAsr = SpeechRecognizer.createRecognizer(getApplicationContext(), null);
-		mAsr.setParameter(SpeechConstant.ENGINE_TYPE, "clound");
+		mAsr.setParameter(SpeechConstant.ENGINE_TYPE, "cloud");
 		mAsr.setParameter(SpeechConstant.SUBJECT, "asr");
 	}
 
@@ -124,6 +170,7 @@ public class ChessActivity extends Activity {
 			Log.i(TAG, "===============onResult================");
 			if (null != result) {
 				Log.d(TAG, "recognizer result：" + result.getResultString());
+				Message msg = Message.obtain();
 				String text ;
 				if("cloud".equalsIgnoreCase(SpeechConstant.TYPE_CLOUD)){
 					text = JsonParser.parseGrammarResult(result.getResultString());
@@ -131,6 +178,24 @@ public class ChessActivity extends Activity {
 					text = JsonParser.parseLocalGrammarResult(result.getResultString());
 				}
 
+				if (text.contains("开始")){
+					msg.what = MSG_START_GAME;
+				}else if(text.contains("暂停")){
+					msg.what = MSG_PAUSE_GAME;
+				}else if (text.contains("重玩") || text.contains("新局")){
+					msg.what = MSG_AGAIN_GAME;
+				}else if (text.contains("悔棋")){
+					msg.what = MSG_BACK_MOVE_GAME;
+				}else if (text.contains("打开声音")){
+					msg.what = MSG_TURN_ON_MUSIC;
+				}else if (text.contains("关闭声音")){
+					msg.what = MSG_TURN_OFF_MUSIC;
+				}else if (text.contains("退出")){
+					msg.what = MSG_END_GAME;
+				}
+				if (msg.what >= 100){
+					handler.sendMessage(msg);
+				}
 				// 显示
 				tv_tip.setText(text);
 			} else {
@@ -158,7 +223,8 @@ public class ChessActivity extends Activity {
 		@Override
 		public void onError(SpeechError error) {
 			Log.i(TAG, "===============onError================");
-			showTip("onError Code："	+ error.getErrorCode());
+			Log.d(TAG, "Error Code："+error.getErrorCode());
+			showTip(ErrorCodeParser.parserErroeCodeResult(error.getErrorCode()));
 			btn_tip.setEnabled(true);
 		}
 
@@ -174,6 +240,7 @@ public class ChessActivity extends Activity {
 		}
 
 	};
+
 
 	private void showTip(final String str) {
 		runOnUiThread(new Runnable() {

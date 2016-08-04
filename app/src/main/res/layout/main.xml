@@ -1,44 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:weightSum="1"
-    >
+    android:orientation="vertical"
+    android:weightSum="1">
 
-    <com.demo.iryving.chess.GameView
-        android:id="@+id/gameView"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="0.7"/>
+        android:layout_weight="0.75">
+
+        <com.demo.iryving.chess.GameView
+            android:id="@+id/gameView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:gravity="center"
         android:orientation="vertical"
-        android:weightSum="1"
-        android:layout_weight="0.3">
+        android:layout_weight="0.25"
+        android:weightSum="1">
+
         <TextView
             android:id="@+id/tv_tip"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="0.5"
-            android:gravity="center"
+            android:background="@drawable/beijing"
             android:ellipsize="marquee"
             android:focusable="true"
-            android:marqueeRepeatLimit="marquee_forever"
             android:focusableInTouchMode="true"
+            android:gravity="center"
+            android:marqueeRepeatLimit="marquee_forever"
             android:scrollHorizontally="true"
             android:text="等待您下达命令。。。。。。"
-            android:textSize="20dp"
-            android:textColor="@android:color/holo_red_dark"/>
+            android:textColor="@android:color/widget_edittext_dark"
+            android:textSize="20dp" />
+
         <Button
             android:id="@+id/btn_tip"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:background="@drawable/beijing"
+            android:layout_gravity="center"
             android:layout_weight="0.5"
             android:text="开始"
-            android:textSize="16dp"
-            android:layout_gravity="center"/>
+            android:textStyle="bold"
+            android:textSize="20dp" />
     </LinearLayout>
 </LinearLayout>
