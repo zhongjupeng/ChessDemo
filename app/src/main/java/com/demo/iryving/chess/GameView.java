@@ -20,6 +20,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -960,7 +961,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback{
         	// 锁定整个画布，在内存要求比较高的情况下，建议参数不要为null
         	canvas = holder.lockCanvas(null);
             synchronized (holder) {
-            	onDraw(canvas);//绘制
+				if (canvas != null){
+					onDraw(canvas);//绘制
+				}else {
+					Log.d(ChessActivity.TAG, "===========canvas is null=============");
+				}
+
             }
         } finally {
             if (canvas != null) {

@@ -6,10 +6,14 @@ import org.json.JSONTokener;
 
 import android.util.Log;
 
+import com.demo.iryving.chess.ChessActivity;
+
 /**
  * Json结果解析类
  */
 public class JsonParser {
+
+	private static int sc;
 
 	public static String parseIatResult(String json) {
 		StringBuffer ret = new StringBuffer();
@@ -55,7 +59,7 @@ public class JsonParser {
 					}
 					ret.append("【结果】" + obj.getString("w"));
 					ret.append("【置信度】" + obj.getInt("sc"));
-					ret.append("\n");
+					ret.append(" ");
 				}
 			}
 		} catch (Exception e) {
@@ -63,6 +67,41 @@ public class JsonParser {
 			ret.append("没有匹配结果.");
 		} 
 		return ret.toString();
+	}
+
+	//只返回置信度最高的结果
+	public static String parseHighScGrammarResult(String json) {
+		String ret = "";
+		int tmp = 0;
+		try {
+			JSONTokener tokener = new JSONTokener(json);
+			JSONObject joResult = new JSONObject(tokener);
+
+			JSONArray words = joResult.getJSONArray("ws");
+			for (int i = 0; i < words.length(); i++) {
+				JSONArray items = words.getJSONObject(i).getJSONArray("cw");
+				for(int j = 0; j < items.length(); j++)
+				{
+					JSONObject obj = items.getJSONObject(j);
+					if(obj.getString("w").contains("nomatch"))
+					{
+						ret = "没有匹配结果.";
+						return ret;
+					}
+					tmp = obj.getInt("sc");
+					if (tmp > sc){
+						sc = tmp;
+						Log.d(ChessActivity.TAG, "++++++++++ret+++++++++++: " + obj.getString("w"));
+						ret = obj.getString("w");
+						Log.d(ChessActivity.TAG, "++++++++++ret+++++++++++: " + ret);
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			ret = "没有匹配结果.";
+		}
+		return ret;
 	}
 	
 	public static String parseLocalGrammarResult(String json) {

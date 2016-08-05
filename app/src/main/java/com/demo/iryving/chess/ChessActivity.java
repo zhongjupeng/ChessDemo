@@ -81,6 +81,9 @@ public class ChessActivity extends Activity {
 					showTip("打开音量");
                     isnoPlaySound = true;
 					break;
+				case MSG_END_GAME:
+					showTip("退出游戏");
+					finish();
 				default:
 
 					break;
@@ -89,7 +92,7 @@ public class ChessActivity extends Activity {
 	};
 
 
-	private static final String TAG = "ChessActivity";
+	public static final String TAG = "ChessActivity";
 	private Toast mToast;
 
 	@Override
@@ -160,23 +163,32 @@ public class ChessActivity extends Activity {
 
 		@Override
 		public void onVolumeChanged(int volume, byte[] data) {
-			Log.i(TAG, "===============onVolemeChanged volume================ : " + volume);
+			Log.d(TAG, "===============onVolemeChanged volume================ : " + volume);
 			showTip("当前正在说话，音量大小：" + volume);
 			Log.d(TAG, "返回音频数据："+data.length);
 		}
 
 		@Override
 		public void onResult(final RecognizerResult result, boolean isLast) {
-			Log.i(TAG, "===============onResult================");
+			Log.d(TAG, "===============onResult================");
 			if (null != result) {
 				Log.d(TAG, "recognizer result：" + result.getResultString());
 				Message msg = Message.obtain();
 				String text ;
+				String text1 ;
 				if("cloud".equalsIgnoreCase(SpeechConstant.TYPE_CLOUD)){
 					text = JsonParser.parseGrammarResult(result.getResultString());
+					text1 = JsonParser.parseHighScGrammarResult(result.getResultString());
+					Log.d(TAG, "++++++++++++cloud++++++++++++++");
 				}else {
 					text = JsonParser.parseLocalGrammarResult(result.getResultString());
+					text1 = "";
+					Log.d(TAG, "++++++++++++Local++++++++++++++");
 				}
+                //Log.d(TAG, "++++++++++++++text1++++++++++++: " + text1);
+				showTip("text1: " + text1);
+				// 显示
+				tv_tip.setText(text);
 
 				if (text.contains("开始")){
 					msg.what = MSG_START_GAME;
@@ -196,8 +208,6 @@ public class ChessActivity extends Activity {
 				if (msg.what >= 100){
 					handler.sendMessage(msg);
 				}
-				// 显示
-				tv_tip.setText(text);
 			} else {
 				Log.d(TAG, "recognizer result : null");
 			}
@@ -205,7 +215,7 @@ public class ChessActivity extends Activity {
 
 		@Override
 		public void onEndOfSpeech() {
-			Log.i(TAG, "===============onEndOfSpeech================");
+			Log.d(TAG, "===============onEndOfSpeech================");
 			// 此回调表示：检测到了语音的尾端点，已经进入识别过程，不再接受语音输入
 			showTip("结束说话");
 			btn_tip.setText("开始");
@@ -214,7 +224,7 @@ public class ChessActivity extends Activity {
 
 		@Override
 		public void onBeginOfSpeech() {
-			Log.i(TAG, "===============onBeginOfSpeech================");
+			Log.d(TAG, "===============onBeginOfSpeech================");
 			// 此回调表示：sdk内部录音机已经准备好了，用户可以开始语音输入
 			showTip("开始说话");
 			btn_tip.setText("识别中。。。");
@@ -222,7 +232,7 @@ public class ChessActivity extends Activity {
 
 		@Override
 		public void onError(SpeechError error) {
-			Log.i(TAG, "===============onError================");
+			Log.d(TAG, "===============onError================");
 			Log.d(TAG, "Error Code："+error.getErrorCode());
 			showTip(ErrorCodeParser.parserErroeCodeResult(error.getErrorCode()));
 			btn_tip.setEnabled(true);
@@ -230,7 +240,7 @@ public class ChessActivity extends Activity {
 
 		@Override
 		public void onEvent(int eventType, int arg1, int arg2, Bundle obj) {
-			Log.i(TAG, "===============onEvent================");
+			Log.d(TAG, "===============onEvent================");
 			// 以下代码用于获取与云端的会话id，当业务出错时将会话id提供给技术支持人员，可用于查询会话日志，定位出错原因
 			// 若使用本地能力，会话id为null
 			//	if (SpeechEvent.EVENT_SESSION_ID == eventType) {
